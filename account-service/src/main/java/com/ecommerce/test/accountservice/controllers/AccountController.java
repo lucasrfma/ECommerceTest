@@ -5,6 +5,10 @@ import com.ecommerce.test.accountservice.dtos.LoginDto;
 import com.ecommerce.test.accountservice.results.LoginResult;
 import com.ecommerce.test.accountservice.results.RegistrationResult;
 import com.ecommerce.test.accountservice.services.AccountService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +23,12 @@ public class AccountController {
     }
 
     @PostMapping("/register")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conta registrada", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Conta já existe, ou parâmetros inválidos",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Erro interno inesperado", content = @Content)
+    })
     public ResponseEntity<String> RegisterAccount(@RequestBody AccountRegistrationDto accountRegistrationDto) {
         RegistrationResult result = accountService.registerAccount(accountRegistrationDto);
         return switch (result) {
@@ -34,6 +44,16 @@ public class AccountController {
     }
 
     @PostMapping("/login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login bem sucedido",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginResult.Success.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Erro de email ou senha.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = LoginResult.Failure.class))
+            )
+    })
     public ResponseEntity<LoginResult> LoginAccount(@RequestBody LoginDto loginDto) {
         LoginResult result = accountService.login(loginDto);
         return switch (result) {

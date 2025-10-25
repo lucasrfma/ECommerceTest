@@ -16,6 +16,10 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class Account {
+
+    static final int MAX_EMAIL_LEN = 100;
+    static final int BCRYPTED_PW_SIZE = 60;
+
     public Account(String email, String password, String address) {
         this.email = email;
         this.password = password;
@@ -25,13 +29,13 @@ public class Account {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = MAX_EMAIL_LEN)
     @Email(message = "E-mail inválido")
-    @Size(max = 100, message = "O e-mail deve ter no máximo 100 caracteres")
+    @Size(max = MAX_EMAIL_LEN, message = "O e-mail deve ter no máximo " + MAX_EMAIL_LEN + " caracteres")
     @NotBlank(message = "E-mail é obrigatório")
     private String email;
 
-    @Column(nullable = false, length = 60)
+    @Column(nullable = false, length = BCRYPTED_PW_SIZE)
     private String password;
 
     @Column(nullable = false)

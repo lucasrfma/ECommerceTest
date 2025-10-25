@@ -35,8 +35,8 @@ public class AccountService {
         if (validationError.isPresent()) {
             return new RegistrationResult.ValidationError(validationError.get());
         }
-        Optional<Account> existingAccount = accountRepository.findByEmail(accountDto.email());
-        if (existingAccount.isPresent()) {
+
+        if (accountRepository.existsByEmail(accountDto.email())) {
             return new RegistrationResult.EmailAlreadyExists();
         }
 
@@ -59,8 +59,9 @@ public class AccountService {
     public LoginResult login(LoginDto loginDto) {
         Optional<Account> existingAccount = accountRepository.findByEmail(loginDto.email());
         if (existingAccount.isPresent()) {
-            if (passwordEncoder.matches(loginDto.password(), existingAccount.get().getPassword())) {
-                return new LoginResult.Success(jwtUtil.generateToken(loginDto.email()));
+            Account account = existingAccount.get();
+            if (passwordEncoder.matches(loginDto.password(), account.getPassword())) {
+                return new LoginResult.Success(jwtUtil.generateToken(account.getId(), account.getEmail()));
             }
         }
         return new LoginResult.Failure("Erro de email ou senha.");

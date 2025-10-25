@@ -61,9 +61,4 @@ public class AccountController {
             case LoginResult.Failure failure -> ResponseEntity.badRequest().body(failure);
         };
     }
-
-    @GetMapping("/hello-world")
-    public ResponseEntity<String> helloWorld() {
-        return ResponseEntity.ok("hello world");
-    }
 }

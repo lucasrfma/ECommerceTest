@@ -1,4 +1,4 @@
-package com.ecommerce.test.accountservice.utils;
+package com.ecommerce.test.productservice.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -24,18 +24,6 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(Long userId, String userEmail) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + duration.toMillis());
-        return Jwts.builder()
-                .id(userId.toString())
-                .subject(userEmail)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(getSigningKey())
-                .compact();
-    }
-
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -53,16 +41,15 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-    private String extractEmail(String token) {
+    public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private String extractId(String token) {
-        return extractClaim(token, Claims::getId);
-    }
-
-    public Boolean validateToken(String token, String userEmail) {
-        final String extractedUsername = extractEmail(token);
-        return (extractedUsername.equals(userEmail) && !isTokenExpired(token));
+    public Long extractId(String token) {
+        try {
+            return Long.parseLong(extractClaim(token, Claims::getId));
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
     }
 }

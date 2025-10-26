@@ -18,6 +18,12 @@ spring:
                 - Path=/api/products/**
               filters:
                - Simple
+            - id: sales-service
+              uri: lb://sales-service
+              predicates:
+                - Path=/api/sales/**
+              filters:
+               - Simple
 
 server:
   port: 8080

@@ -1,6 +1,7 @@
 package com.ecommerce.test.productservice.services;
 
 import com.ecommerce.test.shared.dtos.ProductDto;
+import com.ecommerce.test.shared.dtos.UpsertProductDto;
 import com.ecommerce.test.shared.results.ApiResult;
 import com.ecommerce.test.productservice.entities.Product;
 import com.ecommerce.test.productservice.repositories.ProductRepository;
@@ -23,15 +24,15 @@ public class ProductService {
         this.validator = validator;
     }
 
-    private Product update(Product product, ProductDto productDto) {
-        if (productDto.price() != null) {
-            product.setPrice(productDto.price());
+    private Product update(Product product, UpsertProductDto upsertProductDto) {
+        if (upsertProductDto.price() != null) {
+            product.setPrice(upsertProductDto.price());
         }
-        if (productDto.category() != null) {
-            product.setCategory(productDto.category());
+        if (upsertProductDto.category() != null) {
+            product.setCategory(upsertProductDto.category());
         }
-        if (productDto.quantity() != null) {
-            product.setStock(product.getStock() + productDto.quantity());
+        if (upsertProductDto.quantity() != null) {
+            product.setStock(product.getStock() + upsertProductDto.quantity());
         }
 
         var violations = validator.validate(product);
@@ -42,19 +43,19 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    private Product insert(ProductDto productDto) {
-        return productRepository.save(Product.fromDto(productDto));
+    private Product insert(UpsertProductDto upsertProductDto) {
+        return productRepository.save(Product.fromUpsertDto(upsertProductDto));
     }
 
-    private ProductDto upsertProduct_(ProductDto productDto) {
-        Optional<Product> existingProduct = productRepository.findByDescription(productDto.description());
+    private ProductDto upsertProduct_(UpsertProductDto upsertProductDto) {
+        Optional<Product> existingProduct = productRepository.findByDescription(upsertProductDto.description());
         return existingProduct.map(product ->
-                        update(product, productDto)).orElseGet(() -> insert(productDto)
+                        update(product, upsertProductDto)).orElseGet(() -> insert(upsertProductDto)
                 ).toDto();
     }
 
-    public ApiResult<ProductDto> upsertProduct(ProductDto productDto) {
-        return DbUtils.ProtectDbFunction(this::upsertProduct_).apply(productDto);
+    public ApiResult<ProductDto> upsertProduct(UpsertProductDto upsertProductDto) {
+        return DbUtils.ProtectDbFunction(this::upsertProduct_).apply(upsertProductDto);
     }
 
     public List<ProductDto> getAll() {

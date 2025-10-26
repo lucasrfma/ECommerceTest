@@ -1,6 +1,7 @@
 package com.ecommerce.test.productservice.entities;
 
 import com.ecommerce.test.shared.dtos.ProductDto;
+import com.ecommerce.test.shared.dtos.UpsertProductDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -55,10 +56,10 @@ public class Product {
     private Integer stock;
 
     public ProductDto toDto() {
-        return new ProductDto(description, category, price, stock);
+        return new ProductDto(id, description, category, price, stock);
     }
 
-    public static Product fromDto(ProductDto productDto) {
-        return new Product(productDto.description(), productDto.category(), productDto.price(), productDto.quantity());
+    public static Product fromUpsertDto(UpsertProductDto upsertProductDto) {
+        return new Product(upsertProductDto.description(), upsertProductDto.category(), upsertProductDto.price(), upsertProductDto.quantity());
     }
 }

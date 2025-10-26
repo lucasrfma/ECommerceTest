@@ -1,8 +1,7 @@
-package com.ecommerce.test.productservice.configurations;
+package com.ecommerce.test.salesservice.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,8 +23,6 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/products").authenticated()
                         .requestMatchers("/v3/api-docs*/**", "/swagger-ui/**", "/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -34,3 +31,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

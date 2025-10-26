@@ -1,6 +1,7 @@
 package com.ecommerce.test.productservice.controllers;
 
 import com.ecommerce.test.shared.dtos.ProductDto;
+import com.ecommerce.test.shared.dtos.UpsertProductDto;
 import com.ecommerce.test.shared.results.ApiResult;
 import com.ecommerce.test.productservice.services.ProductService;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,8 +34,8 @@ public class ProductController {
             @ApiResponse(responseCode = "500", description = "Erro interno inesperado", content = @Content),
             @ApiResponse(responseCode = "403", description = "Pedido requer autenticação", content = @Content)
     })
-    public ResponseEntity<ApiResult<ProductDto>> RegisterProduct(@RequestBody ProductDto productDto) {
-        ApiResult<ProductDto> result = productService.upsertProduct(productDto);
+    public ResponseEntity<ApiResult<ProductDto>> RegisterProduct(@RequestBody UpsertProductDto upsertProductDto) {
+        ApiResult<ProductDto> result = productService.upsertProduct(upsertProductDto);
         return switch (result) {
             case ApiResult.Success<ProductDto> success ->
                     ResponseEntity.ok(success);

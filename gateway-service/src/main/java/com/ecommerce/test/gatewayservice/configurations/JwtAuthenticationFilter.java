@@ -1,6 +1,6 @@
 package com.ecommerce.test.gatewayservice.configurations;
 
-import com.ecommerce.test.utils.JwtUtil;
+import com.ecommerce.test.shared.utils.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

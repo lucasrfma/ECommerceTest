@@ -92,6 +92,13 @@
             <version>2.8.5</version>
         </dependency>
 
+        <!--        shared lib-->
+        <dependency>
+            <groupId>com.ecommerce.test</groupId>
+            <artifactId>shared-utils</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!--        JWT-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

@@ -1,20 +1,21 @@
 package com.ecommerce.test.accountservice.entities;
 
+import com.ecommerce.test.shared.dtos.AccountInfoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
+@ToString
 public class Account {
 
     static final int MAX_EMAIL_LEN = 100;
@@ -41,4 +42,8 @@ public class Account {
     @Column(nullable = false)
     @NotBlank(message = "Endereço é obrigatório")
     private String address;
+
+    public AccountInfoDto toInfoDto() {
+        return new AccountInfoDto(email, address);
+    }
 }

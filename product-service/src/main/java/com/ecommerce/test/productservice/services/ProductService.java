@@ -1,17 +1,16 @@
 package com.ecommerce.test.productservice.services;
 
-import com.ecommerce.test.productservice.dtos.ProductDto;
+import com.ecommerce.test.shared.dtos.ProductDto;
+import com.ecommerce.test.shared.results.ApiResult;
 import com.ecommerce.test.productservice.entities.Product;
 import com.ecommerce.test.productservice.repositories.ProductRepository;
-import com.ecommerce.test.productservice.results.ApiResult;
-import com.ecommerce.test.productservice.utils.DbUtils;
+import com.ecommerce.test.shared.utils.DbUtils;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Component
 public class ProductService {
@@ -47,7 +46,7 @@ public class ProductService {
         return productRepository.save(Product.fromDto(productDto));
     }
 
-    private ProductDto upsert(ProductDto productDto) {
+    private ProductDto upsertProduct_(ProductDto productDto) {
         Optional<Product> existingProduct = productRepository.findByDescription(productDto.description());
         return existingProduct.map(product ->
                         update(product, productDto)).orElseGet(() -> insert(productDto)
@@ -55,8 +54,7 @@ public class ProductService {
     }
 
     public ApiResult<ProductDto> upsertProduct(ProductDto productDto) {
-        Function<ProductDto, ApiResult<ProductDto>> protectedUpsert = DbUtils.ProtectDbFunction(this::upsert);
-        return protectedUpsert.apply(productDto);
+        return DbUtils.ProtectDbFunction(this::upsertProduct_).apply(productDto);
     }
 
     public List<ProductDto> getAll() {

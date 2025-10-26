@@ -1,11 +1,12 @@
 package com.ecommerce.test.productservice.configurations;
 
-import com.ecommerce.test.productservice.utils.JwtUtil;
+import com.ecommerce.test.shared.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collections;
 
 @Component
@@ -21,8 +23,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public JwtAuthenticationFilter(@Value("${jwt.secret}") String jwtSecret, @Value("${jwt.duration}") Duration duration) {
+        jwtUtil = new JwtUtil(jwtSecret, duration);
     }
 
     @Override

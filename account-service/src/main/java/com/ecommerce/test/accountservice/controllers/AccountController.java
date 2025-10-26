@@ -1,10 +1,11 @@
 package com.ecommerce.test.accountservice.controllers;
 
-import com.ecommerce.test.accountservice.dtos.AccountRegistrationDto;
-import com.ecommerce.test.accountservice.dtos.LoginDto;
+import com.ecommerce.test.shared.dtos.AccountInfoDto;
+import com.ecommerce.test.shared.dtos.AccountRegistrationDto;
+import com.ecommerce.test.shared.dtos.LoginDto;
 import com.ecommerce.test.accountservice.results.LoginResult;
-import com.ecommerce.test.accountservice.results.RegistrationResult;
 import com.ecommerce.test.accountservice.services.AccountService;
+import com.ecommerce.test.shared.results.ApiResult;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,15 +31,13 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Erro interno inesperado", content = @Content)
     })
     public ResponseEntity<String> RegisterAccount(@RequestBody AccountRegistrationDto accountRegistrationDto) {
-        RegistrationResult result = accountService.registerAccount(accountRegistrationDto);
+        var result = accountService.registerAccount(accountRegistrationDto);
         return switch (result) {
-            case RegistrationResult.Success ignored ->
+            case ApiResult.Success<AccountInfoDto> ignored ->
                     ResponseEntity.ok("Conta registrada com sucesso");
-            case RegistrationResult.EmailAlreadyExists ignored ->
-                    ResponseEntity.badRequest().body("Já existe uma conta com esse e-mail");
-            case RegistrationResult.ValidationError validationError ->
+            case ApiResult.ValidationFailure<AccountInfoDto> validationError ->
                     ResponseEntity.badRequest().body(validationError.message());
-            case RegistrationResult.UnknownError ignored ->
+            case ApiResult.Failure<AccountInfoDto> ignored ->
                     ResponseEntity.internalServerError().body("Erro interno inesperado");
         };
     }

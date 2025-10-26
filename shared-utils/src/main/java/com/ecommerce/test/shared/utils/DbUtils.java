@@ -1,6 +1,7 @@
-package com.ecommerce.test.productservice.utils;
+package com.ecommerce.test.shared.utils;
 
-import com.ecommerce.test.productservice.results.ApiResult;
+import com.ecommerce.test.shared.exceptions.ManualValidationException;
+import com.ecommerce.test.shared.results.ApiResult;
 import jakarta.validation.ConstraintViolationException;
 
 import java.util.function.Function;
@@ -26,7 +27,9 @@ public class DbUtils {
                         .map(v -> v.getPropertyPath() + ": " + v.getMessage())
                         .reduce((a, b) -> a + "; " + b)
                         .orElse("Erro de validação");
-                return new ApiResult.Failure<>(violations);
+                return new ApiResult.ValidationFailure<>(violations);
+            } catch (ManualValidationException e) {
+                return new ApiResult.ValidationFailure<>(e.getMessage());
             } catch (Exception e) {
                 return new ApiResult.Failure<>("Erro interno inesperado");
             }

@@ -1,59 +1,63 @@
 package com.ecommerce.test.accountservice.services;
 
-import com.ecommerce.test.accountservice.dtos.AccountRegistrationDto;
-import com.ecommerce.test.accountservice.dtos.LoginDto;
+import com.ecommerce.test.shared.dtos.AccountInfoDto;
+import com.ecommerce.test.shared.dtos.AccountRegistrationDto;
+import com.ecommerce.test.shared.dtos.LoginDto;
 import com.ecommerce.test.accountservice.entities.Account;
 import com.ecommerce.test.accountservice.repositories.AccountRepository;
 import com.ecommerce.test.accountservice.results.LoginResult;
-import com.ecommerce.test.accountservice.results.RegistrationResult;
-import com.ecommerce.test.accountservice.utils.JwtUtil;
-import jakarta.validation.ConstraintViolationException;
+import com.ecommerce.test.shared.utils.JwtUtil;
+import com.ecommerce.test.shared.exceptions.ManualValidationException;
+import com.ecommerce.test.shared.results.ApiResult;
+import com.ecommerce.test.shared.utils.DbUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class AccountService {
 
-    static final int MIN_PASSWORD_CHAR_LEN = 8;
-    static final int MAX_PASSWORD_BYTE_SIZE = 72;
+    static final int MIN_PW_SIZE = 8;
+    static final int MAX_PW_SIZE = 30;
+
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
 
-    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder,
+                          @Value("${jwt.secret}") String jwtSecret, @Value("${jwt.duration}") Duration duration) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
+        this.jwtUtil = new JwtUtil(jwtSecret, duration);
     }
 
-    public RegistrationResult registerAccount(AccountRegistrationDto accountDto) {
-        Optional<String> validationError = validatePassword(accountDto.password());
-        if (validationError.isPresent()) {
-            return new RegistrationResult.ValidationError(validationError.get());
-        }
+    private boolean isValidPassword(String password) {
+        return password.length() >= MIN_PW_SIZE && password.length() <= MAX_PW_SIZE;
+    }
 
+    private AccountInfoDto registerAccount_(AccountRegistrationDto accountDto) {
+        if (!isValidPassword(accountDto.password())) {
+            throw new ManualValidationException("A senha deve ter entre " + MIN_PW_SIZE + " e "
+                    + MAX_PW_SIZE + " caracteres.");
+        }
         if (accountRepository.existsByEmail(accountDto.email())) {
-            return new RegistrationResult.EmailAlreadyExists();
+            throw new ManualValidationException("Já existe uma conta com esse e-mail.");
         }
+        String hashedPassword = passwordEncoder.encode(accountDto.password());
 
-        try {
-            String hashedPassword = passwordEncoder.encode(accountDto.password());
+        return accountRepository.save(
+                new Account(accountDto.email(), hashedPassword, accountDto.address())
+        ).toInfoDto();
+    }
 
-            accountRepository.save(new Account(accountDto.email(), hashedPassword, accountDto.address()));
-            return new RegistrationResult.Success();
-        } catch (ConstraintViolationException e) {
-            String violations = e.getConstraintViolations().stream()
-                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-                    .reduce((a, b) -> a + "; " + b)
-                    .orElse("Erro de validação");
-            return new RegistrationResult.ValidationError(violations);
-        } catch (Exception e) {
-            return new RegistrationResult.UnknownError();
-        }
+    public ApiResult<AccountInfoDto> registerAccount(AccountRegistrationDto accountDto) {
+        return DbUtils.ProtectDbFunction(this::registerAccount_).apply(accountDto);
     }
 
     public LoginResult login(LoginDto loginDto) {
@@ -65,16 +69,5 @@ public class AccountService {
             }
         }
         return new LoginResult.Failure("Erro de email ou senha.");
-    }
-
-    private Optional<String> validatePassword(String password) {
-        int pwBytes = password.getBytes(StandardCharsets.UTF_8).length;
-        if (password.length() < MIN_PASSWORD_CHAR_LEN) {
-            return Optional.of("Senha tem que ter pelo menos " + MIN_PASSWORD_CHAR_LEN + " caracteres");
-        }
-        if (pwBytes > MAX_PASSWORD_BYTE_SIZE) {
-            return Optional.of("Senha grande demais. No máximo 72 caracteres. Caracteres especiais podem reduzir esse limite.");
-        }
-        return Optional.empty();
     }
 }

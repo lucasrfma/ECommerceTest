@@ -1,6 +1,6 @@
 package com.ecommerce.test.productservice.entities;
 
-import com.ecommerce.test.productservice.dtos.ProductDto;
+import com.ecommerce.test.shared.dtos.ProductDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

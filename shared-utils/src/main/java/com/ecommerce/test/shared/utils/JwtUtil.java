@@ -1,4 +1,4 @@
-package com.ecommerce.test.utils;
+package com.ecommerce.test.shared.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -11,8 +11,8 @@ import java.util.Date;
 import java.util.function.Function;
 
 public class JwtUtil {
-    private String secret;
-    private Duration duration;
+    private final String secret;
+    private final Duration duration;
 
     public JwtUtil(String secret, Duration duration) {
         this.secret = secret;
@@ -22,6 +22,18 @@ public class JwtUtil {
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String generateToken(Long userId, String userEmail) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + duration.toMillis());
+        return Jwts.builder()
+                .id(userId.toString())
+                .subject(userEmail)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
     }
 
     private Claims extractAllClaims(String token) {

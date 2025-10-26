@@ -1,8 +1,7 @@
 package com.ecommerce.test.productservice.controllers;
 
-import com.ecommerce.test.productservice.dtos.ProductDto;
-import com.ecommerce.test.productservice.repositories.ProductRepository;
-import com.ecommerce.test.productservice.results.ApiResult;
+import com.ecommerce.test.shared.dtos.ProductDto;
+import com.ecommerce.test.shared.results.ApiResult;
 import com.ecommerce.test.productservice.services.ProductService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,29 +20,35 @@ public class ProductController {
 
     final private ProductService productService;
 
-    public ProductController(ProductService productService, ProductRepository productRepository) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Conta registrada", content = @Content),
-            @ApiResponse(responseCode = "400", description = "Conta já existe, ou parâmetros inválidos",
+            @ApiResponse(responseCode = "200", description = "Produto registrado ou atualizado", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Produto com parâmetros inválidos",
                     content = @Content),
-            @ApiResponse(responseCode = "500", description = "Erro interno inesperado", content = @Content)
+            @ApiResponse(responseCode = "500", description = "Erro interno inesperado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Pedido requer autenticação", content = @Content)
     })
     public ResponseEntity<ApiResult<ProductDto>> RegisterProduct(@RequestBody ProductDto productDto) {
         ApiResult<ProductDto> result = productService.upsertProduct(productDto);
         return switch (result) {
             case ApiResult.Success<ProductDto> success ->
                     ResponseEntity.ok(success);
+            case ApiResult.ValidationFailure<ProductDto> validationFailure ->
+                    ResponseEntity.badRequest().body(validationFailure);
             case ApiResult.Failure<ProductDto> failure ->
-                    ResponseEntity.badRequest().body(failure);
+                    ResponseEntity.internalServerError().body(failure);
         };
     }
 
     @GetMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de produtos obtida com sucesso", content = @Content),
+    })
     public List<ProductDto> GetAllProducts() {
         return productService.getAll();
     }

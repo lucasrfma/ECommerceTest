@@ -1,4 +1,4 @@
-package com.ecommerce.test.accountservice.dtos;
+package com.ecommerce.test.shared.dtos;
 
 public record LoginDto(String email, String password) {
 }

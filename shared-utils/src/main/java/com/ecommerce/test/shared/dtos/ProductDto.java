@@ -1,4 +1,4 @@
-package com.ecommerce.test.productservice.dtos;
+package com.ecommerce.test.shared.dtos;
 
 import java.math.BigDecimal;
 

@@ -11,13 +11,13 @@ spring:
               predicates:
                 - Path=/api/accounts/**
               filters:
-               - JwtAuthenticationFilter
+               - Simple
             - id: product-service
               uri: lb://product-service
               predicates:
                 - Path=/api/products/**
               filters:
-               - JwtAuthenticationFilter
+               - Simple
 
 server:
   port: 8080

@@ -1,6 +1,7 @@
 package com.ecommerce.test.gatewayservice.configurations;
 
 import com.ecommerce.test.utils.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -27,19 +28,27 @@ public class JwtAuthenticationFilter implements GatewayFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         if (!isOpenEndpoint(exchange)) {
-            log.info("Checking for Authorization");
+            log.info("Verificando Authorization");
             String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return unauthorizedResponse(exchange, "Missing or invalid Authorization header");
+                return unauthorizedResponse(exchange, "Authorization header faltando ou inválido");
             }
 
             String jwt = authHeader.substring(7);
             try {
+                // na hora de parsear o token, já é visto que está expirado.
+                // essa função isTokenExpired perde o sentido
+                // todo: remover
                 if (jwtUtil.isTokenExpired(jwt)) {
-                    return unauthorizedResponse(exchange, "Expired JWT token");
+                    return unauthorizedResponse(exchange, "JWT token expirado");
                 }
-            } catch (Exception e) {
-                return unauthorizedResponse(exchange, "Invalid JWT token");
+            }
+            catch (ExpiredJwtException e) {
+                return unauthorizedResponse(exchange, "JWT token expirado");
+            }
+            catch (Exception e) {
+                log.error("Error validating JWT token", e);
+                return unauthorizedResponse(exchange, "JWT token inválido");
             }
         }
         log.info("Routing request to specific service");

@@ -10,8 +10,14 @@ spring:
               uri: lb://account-service
               predicates:
                 - Path=/api/accounts/**
-#              filters:
-#               - AuthenticationFilter
+              filters:
+               - JwtAuthenticationFilter
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/api/products/**
+              filters:
+               - JwtAuthenticationFilter
 
 server:
   port: 8080
@@ -23,3 +29,7 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+jwt:
+  secret: poew12947dhasojbFDQErdb1763bcASDMNWebiweh2333211QQQEEASD123321dE
+  duration: 10m

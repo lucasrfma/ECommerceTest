@@ -61,4 +61,8 @@ public class ProductService {
     public List<ProductDto> getAll() {
         return productRepository.findAll().stream().map(Product::toDto).toList();
     }
+
+    public ProductDto getById(Long id) {
+        return productRepository.findById(id).map(Product::toDto).orElseThrow();
+    }
 }

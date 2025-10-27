@@ -36,9 +36,6 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
             String jwt = authHeader.substring(7);
             try {
-                // na hora de parsear o token, já é visto que está expirado.
-                // essa função isTokenExpired perde o sentido
-                // todo: remover
                 if (jwtUtil.isTokenExpired(jwt)) {
                     return unauthorizedResponse(exchange, "JWT token expirado");
                 }
@@ -60,7 +57,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
         HttpMethod method = exchange.getRequest().getMethod();
 
         if (method == HttpMethod.GET) {
-            return path.equals("/api/products");
+            return path.startsWith("/api/products");
         }
         else if (method == HttpMethod.POST) {
             // Para seguir uma lógica de segurança em primeiro lugar, defino as regras para pular autenticação

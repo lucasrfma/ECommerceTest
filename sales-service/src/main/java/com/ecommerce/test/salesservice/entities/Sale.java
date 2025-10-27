@@ -1,5 +1,6 @@
 package com.ecommerce.test.salesservice.entities;
 
+import com.ecommerce.test.shared.dtos.SaleDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +25,16 @@ public class Sale {
 
     static final int MAX_EMAIL_LEN = 100;
 
+    public Sale(Long productId, String productDescription, Integer quantity, BigDecimal price, Long accountId, String accountEmail) {
+        this.productId = productId;
+        this.productDescription = productDescription;
+        this.quantity = quantity;
+        this.price = price;
+        this.accountId = accountId;
+        this.accountEmail = accountEmail;
+        this.saleDate = LocalDateTime.now();
+    }
+
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
@@ -44,4 +55,16 @@ public class Sale {
     private String accountEmail;
 
     private LocalDateTime saleDate;
+
+    public SaleDto toDto() {
+        return new SaleDto(
+                id,
+                productId,
+                productDescription,
+                quantity,
+                price,
+                accountEmail,
+                saleDate
+        );
+    }
 }

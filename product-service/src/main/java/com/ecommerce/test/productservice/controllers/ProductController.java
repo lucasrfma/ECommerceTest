@@ -50,7 +50,12 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de produtos obtida com sucesso", content = @Content),
     })
-    public List<ProductDto> GetAllProducts() {
-        return productService.getAll();
+    public ResponseEntity<List<ProductDto>> GetAllProducts() {
+        return ResponseEntity.ok(productService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDto> GetProductById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(productService.getById(id));
     }
 }

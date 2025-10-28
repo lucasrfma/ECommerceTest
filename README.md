@@ -47,6 +47,29 @@ Ele espera 5 segundos entre cada passo desses.
   - Para gerar um token, use o endpoint de login do Account Service.
   - Uma vez gerado o token, coloque na header do seu request: "Authorization: Bearer <token>"
   - Esse processo é automatizável com o Insomnia/Postman.
+ 
+### Guia de automatização do token
+
+- Criar endpoint de login
+
+<img width="2127" height="630" alt="image" src="https://github.com/user-attachments/assets/82959163-5be2-451d-a766-f488d80cd0e3" />
+
+- Editar environment
+  
+<img width="325" height="300" alt="image" src="https://github.com/user-attachments/assets/4e90ce0f-ec39-4015-a293-90da1cdce981" />
+
+- Criar uma variável 
+
+<img width="3312" height="570" alt="image" src="https://github.com/user-attachments/assets/0b0bb7bb-1149-4c48-aa51-568e349cec01" />
+
+- Editá-la para preencher automaticamente com o resultado do pedido de login
+
+<img width="1821" height="931" alt="image" src="https://github.com/user-attachments/assets/46c3dc61-40d9-423e-a109-bc7efdf3cdbb" />
+
+- Nos Endpoints que requerem autenticação, na aba Auth escolher a opção Bearer Token e setar a variável no token -> {{access_token}}
+
+<img width="1552" height="572" alt="image" src="https://github.com/user-attachments/assets/3ac79cc6-831f-4bbe-bb30-17a9d197c403" />
+
 ### Account Service
 - Para acessar o swagger:
 - http://localhost:8081/swagger-ui/index.html#/

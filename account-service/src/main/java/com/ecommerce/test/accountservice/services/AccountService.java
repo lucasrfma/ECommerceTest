@@ -29,6 +29,8 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    public static final String ACCOUNT_ALREADY_EXISTS = "Já existe uma conta com esse e-mail.";
+    public static final String BAD_CREDENTIALS = "Erro de email ou senha.";
 
     public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder,
                           @Value("${jwt.secret}") String jwtSecret, @Value("${jwt.duration}") Duration duration) {
@@ -47,7 +49,7 @@ public class AccountService {
                     + MAX_PW_SIZE + " caracteres.");
         }
         if (accountRepository.existsByEmail(accountDto.email())) {
-            throw new ManualValidationException("Já existe uma conta com esse e-mail.");
+            throw new ManualValidationException(ACCOUNT_ALREADY_EXISTS);
         }
         String hashedPassword = passwordEncoder.encode(accountDto.password());
 
@@ -68,6 +70,6 @@ public class AccountService {
                 return new LoginResult.Success(jwtUtil.generateToken(account.getId(), account.getEmail()));
             }
         }
-        return new LoginResult.Failure("Erro de email ou senha.");
+        return new LoginResult.Failure(BAD_CREDENTIALS);
     }
 }

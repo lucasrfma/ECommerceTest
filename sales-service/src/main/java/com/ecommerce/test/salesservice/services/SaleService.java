@@ -27,10 +27,6 @@ public class SaleService {
         this.productClient = productClient;
     }
 
-    public ResponseEntity<ProductDto> getProdById(Long id) {
-        return productClient.GetProductById(id);
-    }
-
     private static UpsertProductDto createUpdateRequestBody(
             Integer quantity, ResponseEntity<ProductDto> productResponse)
             throws ManualValidationException, NullPointerException {

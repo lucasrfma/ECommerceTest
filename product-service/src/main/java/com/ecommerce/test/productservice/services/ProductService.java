@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 public class ProductService {
 
-    private final static String PRODUCT_NOT_FOUND = "Product not found";
+    public final static String PRODUCT_NOT_FOUND = "Product not found";
     private final ProductRepository productRepository;
     private final Validator validator;
 

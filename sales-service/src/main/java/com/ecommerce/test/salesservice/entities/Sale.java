@@ -45,7 +45,7 @@ public class Sale {
     @Size(max = MAX_DESCRIPTION_LEN, message = "A descrição deve ter no máximo " + MAX_DESCRIPTION_LEN + " caracteres")
     private String productDescription;
     @Column(nullable = false)
-    @Min(value = 0, message = "A quantidade vendida deve ser maior ou igual a zero")
+    @Min(value = 1, message = "A quantidade vendida deve ser maior ou igual a um (1)")
     private Integer quantity;
     @Column(nullable = false, precision = PRICE_PRECISION, scale = PRICE_SCALE)
     private BigDecimal price;

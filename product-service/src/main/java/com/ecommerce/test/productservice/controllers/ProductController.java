@@ -55,7 +55,22 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> GetProductById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(productService.getById(id));
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Produto encontrado", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Produto não encontrado",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Erro interno inesperado", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Pedido requer autenticação", content = @Content)
+    })
+    public ResponseEntity<ApiResult<ProductDto>> GetProductById(@PathVariable("id") Long id) {
+        var result = productService.getById(id);
+        return switch (result) {
+            case ApiResult.Success<ProductDto> success ->
+                    ResponseEntity.ok(success);
+            case ApiResult.ValidationFailure<ProductDto> validationFailure ->
+                    ResponseEntity.badRequest().body(validationFailure);
+            case ApiResult.Failure<ProductDto> failure ->
+                    ResponseEntity.internalServerError().body(failure);
+        };
     }
 }

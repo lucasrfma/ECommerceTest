@@ -17,5 +17,5 @@ public interface ProductClient {
     ResponseEntity<ApiResult<ProductDto>> RegisterProduct(@RequestBody UpsertProductDto upsertProductDto);
 
     @GetMapping("/api/products/{id}")
-    ResponseEntity<ProductDto> GetProductById(@PathVariable("id") Long id);
+    ResponseEntity<ApiResult<ProductDto>> GetProductById(@PathVariable("id") Long id);
 }

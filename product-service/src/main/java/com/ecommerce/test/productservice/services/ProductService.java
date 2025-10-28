@@ -2,6 +2,7 @@ package com.ecommerce.test.productservice.services;
 
 import com.ecommerce.test.shared.dtos.ProductDto;
 import com.ecommerce.test.shared.dtos.UpsertProductDto;
+import com.ecommerce.test.shared.exceptions.ManualValidationException;
 import com.ecommerce.test.shared.results.ApiResult;
 import com.ecommerce.test.productservice.entities.Product;
 import com.ecommerce.test.productservice.repositories.ProductRepository;
@@ -16,6 +17,7 @@ import java.util.Optional;
 @Component
 public class ProductService {
 
+    private final static String PRODUCT_NOT_FOUND = "Product not found";
     private final ProductRepository productRepository;
     private final Validator validator;
 
@@ -62,7 +64,13 @@ public class ProductService {
         return productRepository.findAll().stream().map(Product::toDto).toList();
     }
 
-    public ProductDto getById(Long id) {
-        return productRepository.findById(id).map(Product::toDto).orElseThrow();
+    private ProductDto getById_(Long id) {
+        return productRepository.findById(id).orElseThrow( () ->
+                new ManualValidationException(PRODUCT_NOT_FOUND)
+        ).toDto();
+    }
+
+    public ApiResult<ProductDto> getById(Long id) {
+        return DbUtils.ProtectDbFunction(this::getById_).apply(id);
     }
 }

@@ -11,6 +11,7 @@ import com.ecommerce.test.shared.exceptions.ManualValidationException;
 import com.ecommerce.test.shared.results.ApiResult;
 import com.ecommerce.test.shared.utils.DbUtils;
 import com.ecommerce.test.shared.utils.MiscUtils;
+import feign.FeignException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,9 @@ public class SaleService {
 
     private final SaleRepository saleRepository;
     private final ProductClient productClient;
+    public static final String PRODUCT_NOT_FOUND = "Produto não encontrado.";
+    public static final String INSUFICIENT_STOCK = "Estoque insuficiente.";
+    public static final String MINIMUM_SALE_QUANTITY_ERROR = "Quantidade deve vendida tem que ser maior que zero.";
 
     public SaleService(SaleRepository saleRepository, ProductClient productClient) {
         this.saleRepository = saleRepository;
@@ -28,15 +32,15 @@ public class SaleService {
     }
 
     private static UpsertProductDto createUpdateRequestBody(
-            Integer quantity, ResponseEntity<ProductDto> productResponse)
+            Integer quantity, ResponseEntity<ApiResult<ProductDto>> productResponse)
             throws ManualValidationException, NullPointerException {
         if (!productResponse.getStatusCode().is2xxSuccessful()) {
-            throw new ManualValidationException("Produto não encontrado.");
+            throw new ManualValidationException(PRODUCT_NOT_FOUND);
         }
 
-        ProductDto retrievedProduct = productResponse.getBody();
+        ProductDto retrievedProduct = productResponse.getBody().getSuccessData();
         if (retrievedProduct.quantity() < quantity) {
-            throw new ManualValidationException("Não há estoque suficiente.");
+            throw new ManualValidationException(INSUFICIENT_STOCK);
         }
 
         return new UpsertProductDto(
@@ -52,9 +56,15 @@ public class SaleService {
             NullPointerException,
             NumberFormatException,
             ArrayIndexOutOfBoundsException {
-        
-        var productResponse = productClient.GetProductById(salesRequestDto.productId());
-
+        if (salesRequestDto.quantity() <= 0) {
+            throw new ManualValidationException(MINIMUM_SALE_QUANTITY_ERROR);
+        }
+        ResponseEntity<ApiResult<ProductDto>> productResponse;
+        try {
+            productResponse = productClient.GetProductById(salesRequestDto.productId());
+        } catch (FeignException.FeignClientException e) {
+            throw new ManualValidationException(PRODUCT_NOT_FOUND);
+        }
         var updateRequest = createUpdateRequestBody(salesRequestDto.quantity(), productResponse);
 
         var productUpdateResponse = productClient.RegisterProduct(updateRequest);

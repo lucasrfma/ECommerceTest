@@ -49,6 +49,8 @@ public class SaleServiceTest {
             "Description",
             BigDecimal.TEN.setScale(2, RoundingMode.HALF_DOWN),
             10);
+    static final private ResponseEntity<ApiResult<ProductDto>> productFound = ResponseEntity.ok(
+            new ApiResult.Success<>(productDto));
 
     private void setSuccessfulUpdateProductMock() {
         when(productClient.RegisterProduct(any(UpsertProductDto.class))).thenAnswer(invocation -> {
@@ -85,13 +87,11 @@ public class SaleServiceTest {
         // Arrange
         // pedido recebido
         SalesRequestDto salesRequestDto = new SalesRequestDto(1L, 5);
-        // resposta a mockar do query de produto por ID
-        ResponseEntity<ProductDto> productResponse = ResponseEntity.ok(productDto);
 
         try (MockedStatic<MiscUtils> mockedStatic = Mockito.mockStatic(MiscUtils.class)) {
             // Configurando mocks para devolver as respostas acima
             mockedStatic.when(MiscUtils::getCurrentPrincipal).thenReturn(principal);
-            when(productClient.GetProductById(salesRequestDto.productId())).thenReturn(productResponse);
+            when(productClient.GetProductById(salesRequestDto.productId())).thenReturn(productFound);
             // Mockando com thenAnswer para que os mocks simulem o comportamento dos métodos mockados,
             // e não simplesmente nos dêem a resposta desejada de maneira hard-coded
             setSuccessfulUpdateProductMock();
@@ -121,9 +121,21 @@ public class SaleServiceTest {
     }
 
     @Test
+    void testSaveSale_SaleQuantityBelowMinimum() {
+        SalesRequestDto salesRequestDto = new SalesRequestDto(1L, 0);
+
+        ApiResult<SaleDto> result = saleService.saveSale(salesRequestDto);
+
+        assertInstanceOf(ApiResult.ValidationFailure.class, result);
+        ApiResult.ValidationFailure<SaleDto> validationFailure = (ApiResult.ValidationFailure<SaleDto>) result;
+        assertEquals(SaleService.MINIMUM_SALE_QUANTITY_ERROR, validationFailure.getErrorMessage());
+    }
+
+    @Test
     void testSaveSale_ProductNotFound() {
         SalesRequestDto salesRequestDto = new SalesRequestDto(1L, 5);
-        ResponseEntity<ProductDto> productResponse = ResponseEntity.notFound().build();
+        ResponseEntity<ApiResult<ProductDto>> productResponse = ResponseEntity.badRequest()
+                .body(new ApiResult.Failure<>(SaleService.PRODUCT_NOT_FOUND));
 
         when(productClient.GetProductById(salesRequestDto.productId())).thenReturn(productResponse);
 
@@ -131,21 +143,20 @@ public class SaleServiceTest {
 
         assertInstanceOf(ApiResult.ValidationFailure.class, result);
         ApiResult.ValidationFailure<SaleDto> validationFailure = (ApiResult.ValidationFailure<SaleDto>) result;
-        assertEquals("Produto não encontrado.", validationFailure.getErrorMessage());
+        assertEquals(SaleService.PRODUCT_NOT_FOUND, validationFailure.getErrorMessage());
     }
 
     @Test
     void testSaveSale_InsufficientStock() {
         SalesRequestDto salesRequestDto = new SalesRequestDto(1L, 15);
-        ResponseEntity<ProductDto> productResponse = ResponseEntity.ok(productDto);
 
-        when(productClient.GetProductById(salesRequestDto.productId())).thenReturn(productResponse);
+        when(productClient.GetProductById(salesRequestDto.productId())).thenReturn(productFound);
 
         ApiResult<SaleDto> result = saleService.saveSale(salesRequestDto);
 
         assertInstanceOf(ApiResult.ValidationFailure.class, result);
         ApiResult.ValidationFailure<SaleDto> validationFailure = (ApiResult.ValidationFailure<SaleDto>) result;
-        assertEquals("Não há estoque suficiente.", validationFailure.getErrorMessage());
+        assertEquals(SaleService.INSUFICIENT_STOCK, validationFailure.getErrorMessage());
     }
 
     @Test

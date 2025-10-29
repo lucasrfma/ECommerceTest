@@ -28,7 +28,7 @@ pode ser que tenha que esperar um tempo para que o Gateway service conheça toda
 
 Abra o terminal na pasta do projeto/shared-utils e execute o seguinte comando:
 ```
-mvnw clean install
+mvn clean install
 ```
 
 A seguir, há duas opções:

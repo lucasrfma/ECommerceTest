@@ -1,5 +1,8 @@
 # E-commerce Test Project
 
+Vídeo apresentando
+https://www.youtube.com/watch?v=lCbTvQE2ZYk
+
 ## Requisitos
 
 *   Java 21

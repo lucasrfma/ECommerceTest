@@ -1,7 +1,44 @@
 # E-commerce Test Project
 
-Vídeo apresentando
-https://www.youtube.com/watch?v=lCbTvQE2ZYk
+## English
+
+### About
+
+This project is an e-commerce backend prototype developed as a technical exercise. It is intended to demonstrate a service-based application and is not a production system.
+
+The application consists of five services:
+
+- **Account Service:** handles account registration and login.
+- **Product Service:** manages products and inventory.
+- **Sales Service:** registers sales and retrieves a user's sales.
+- **Eureka Service:** provides service discovery.
+- **Gateway Service:** provides an entry point for API requests.
+
+The application supports token-based authentication and validates business rules, such as preventing sales that exceed available stock.
+
+**Technologies:** Java 21, Spring Boot, Maven, and Eureka.
+
+A [video walkthrough](https://www.youtube.com/watch?v=lCbTvQE2ZYk) is available in Portuguese. Setup and endpoint examples are documented below.
+
+## Português
+
+### Sobre
+
+Este projeto é um protótipo de backend para comércio eletrônico, desenvolvido como exercício técnico. Seu objetivo é demonstrar uma aplicação baseada em serviços; não é um sistema de produção.
+
+A aplicação é composta por cinco serviços:
+
+- **Account Service:** responsável pelo cadastro e login de contas.
+- **Product Service:** gerencia produtos e estoque.
+- **Sales Service:** registra vendas e consulta as vendas de um usuário.
+- **Eureka Service:** fornece descoberta de serviços.
+- **Gateway Service:** oferece um ponto de entrada para as requisições à API.
+
+A aplicação utiliza autenticação por token e valida regras de negócio, como impedir vendas com quantidade superior ao estoque disponível.
+
+**Tecnologias:** Java 21, Spring Boot, Maven e Eureka.
+
+Há um [vídeo de apresentação](https://www.youtube.com/watch?v=lCbTvQE2ZYk) em português. As instruções de execução e os exemplos de endpoints estão abaixo.
 
 ## Requisitos
 
@@ -95,7 +132,7 @@ POST: http://localhost:8080/api/accounts/register
 POST: http://localhost:8080/api/accounts/login
 {
     "email": "user.name@esample.com",
-    "password": "1364912WaS17",
+    "password": "1364912WaS17"
 }
 
 Retorna um token de acesso.
